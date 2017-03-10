@@ -5,15 +5,14 @@ import highlight from '../lib/highlight.es6'
 import beautify from 'js-beautify'
 import JsonViewer from '../lib/JsonViewer.es6'
 
-export default class Log
-{
+export default class Log {
     constructor({
         type = 'log',
         args = [],
         id,
         displayHeader = false,
-        ignoreFilter = false})
-    {
+        ignoreFilter = false
+    }) {
         this.type = type;
         this.args = args;
         this.count = 1;
@@ -21,16 +20,14 @@ export default class Log
         this.displayHeader = displayHeader;
         this.ignoreFilter = ignoreFilter;
 
-        if (displayHeader)
-        {
+        if (displayHeader) {
             this.time = getCurTime();
             this.from = getFrom();
         }
 
         this._formatMsg();
     }
-    addCount()
-    {
+    addCount() {
         this.count++;
         let count = this.count,
             msg = this.formattedMsg;
@@ -41,12 +38,10 @@ export default class Log
 
         return this;
     }
-    updateTime(time)
-    {
+    updateTime(time) {
         let msg = this.formattedMsg;
 
-        if (this.time)
-        {
+        if (this.time) {
             msg = msg.replace(/data-mark="time">(.*?)</, `data-mark="time">${time}<`);
             this.time = time;
             this.formattedMsg = msg;
@@ -54,38 +49,31 @@ export default class Log
 
         return this;
     }
-    _needSrc()
-    {
-        let {type, args} = this;
+    _needSrc() {
+        let { type, args } = this;
 
         if (type === 'html') return false;
 
-        for (let i = 0, len = args.length; i < len; i++)
-        {
+        for (let i = 0, len = args.length; i < len; i++) {
             if (util.isObj(args[i])) return true;
         }
 
         return false;
     }
-    _formatMsg()
-    {
-        let {type, id, displayHeader, time, from, args} = this;
+    _formatMsg() {
+        let { type, id, displayHeader, time, from, args } = this;
 
-        if (this._needSrc())
-        {
-            if (type === 'table')
-            {
+        if (this._needSrc()) {
+            if (type === 'table') {
                 this.src = extractObj(args[0]);
-            } else
-            {
+            } else {
                 this.src = extractObj(args.length === 1 && util.isObj(args[0]) ? args[0] : args);
             }
         }
 
-        let msg = '', icon, err;
-
-        switch (type)
-        {
+        let msg = '',
+            icon, err;
+        switch (type) {
             case 'log':
                 msg = formatMsg(args);
                 break;
@@ -129,15 +117,13 @@ export default class Log
 
         if (type !== 'error') msg = recognizeUrl(msg);
         this.value = msg;
-        msg = render({msg, type, icon, id, displayHeader, time, from});
+        msg = render({ msg, type, icon, id, displayHeader, time, from });
 
         delete this.args;
         this.formattedMsg = msg;
     }
-    static click(type, log, $el)
-    {
-        switch (type)
-        {
+    static click(type, log, $el) {
+        switch (type) {
             case 'log':
             case 'warn':
             case 'info':
@@ -145,20 +131,16 @@ export default class Log
             case 'output':
             case 'table':
             case 'dir':
-                if (log.src)
-                {
+                if (log.src) {
                     if (Log.showSrcInSources) return 'viewSrc';
                     let $json = $el.find('.eruda-json');
-                    if ($json.hasClass('eruda-hidden'))
-                    {
-                        if ($json.data('init') !== 'true')
-                        {
+                    if ($json.hasClass('eruda-hidden')) {
+                        if ($json.data('init') !== 'true') {
                             new JsonViewer(log.src, $json);
                             $json.data('init', 'true');
                         }
                         $json.rmClass('eruda-hidden');
-                    } else
-                    {
+                    } else {
                         $json.addClass('eruda-hidden');
                     }
                 }
@@ -177,16 +159,14 @@ Log.showGetterVal = false;
 Log.showUnenumerable = true;
 Log.showSrcInSources = false;
 
-var getAbstract = util.wrap(origGetAbstract, function (fn, obj)
-{
+var getAbstract = util.wrap(origGetAbstract, function(fn, obj) {
     return fn(obj, {
         getterVal: Log.showGetterVal,
         unenumerable: false
     });
 });
 
-function formatTable(args)
-{
+function formatTable(args) {
     let table = args[0],
         ret = '',
         filter = args[1],
@@ -197,8 +177,7 @@ function formatTable(args)
 
     if (!util.isArr(table)) return formatMsg(args);
 
-    table.forEach(val =>
-    {
+    table.forEach(val => {
         if (!util.isObj(val)) return;
         columns = columns.concat(Object.getOwnPropertyNames(val));
     });
@@ -211,18 +190,14 @@ function formatTable(args)
     columns.forEach(val => ret += `<th>${val}</th>`);
     ret += '</tr></thead><tbody>';
 
-    table.forEach((obj, idx) =>
-    {
+    table.forEach((obj, idx) => {
         if (!util.isObj(obj)) return;
         ret += `<tr><td>${idx}</td>`;
-        columns.forEach(column =>
-        {
+        columns.forEach(column => {
             let val = obj[column];
-            if (util.isUndef(val))
-            {
+            if (util.isUndef(val)) {
                 val = '';
-            } else if (util.isObj(val))
-            {
+            } else if (util.isObj(val)) {
                 val = util.getObjType(val);
             }
 
@@ -232,7 +207,7 @@ function formatTable(args)
     });
 
     ret += '</tbody></table>';
-    ret += '<div class="eruda-json eruda-hidden"></div>';
+    /*ret += '<div class="eruda-json eruda-hidden"></div>';*/
 
     return ret;
 }
@@ -240,61 +215,50 @@ function formatTable(args)
 var regJsUrl = /https?:\/\/([0-9.\-A-Za-z]+)(?::(\d+))?\/[A-Z.a-z0-9/]*\.js/g,
     regErudaJs = /eruda(\.min)?\.js/;
 
-function formatErr(err)
-{
+function formatErr(err) {
     var lines = err.stack.split('\n'),
         msg = `${err.message || lines[0]}<br/>`;
 
     lines = lines.filter(val => !regErudaJs.test(val));
 
-    var stack = `<div class="eruda-stack eruda-hidden">${lines.slice(1).join('<br/>')}</div>`;
+    var stack = `<div class="eruda-stack eruda-hidden" style="color:red;">${lines.slice(1).join('<br/>')}</div>`;
 
     return msg + stack.replace(regJsUrl, match => `<a href="${match}" target="_blank">${match}</a>`);
 }
 
-function formatJs(code)
-{
+function formatJs(code) {
     return highlight(beautify(code), 'js');
 }
 
-function formatMsg(args, {htmlForEl = true} = {})
-{
+function formatMsg(args, { htmlForEl = true } = {}) {
     args = substituteStr(args);
 
-    for (let i = 0, len = args.length; i < len; i++)
-    {
+    for (let i = 0, len = args.length; i < len; i++) {
         let val = args[i];
 
-        if (util.isEl(val) && htmlForEl)
-        {
+        if (util.isEl(val) && htmlForEl) {
             args[i] = formatEl(val);
-        } else if (util.isFn(val))
-        {
+        } else if (util.isFn(val)) {
             args[i] = formatFn(val);
-        } else if (util.isObj(val))
-        {
+        } else if (util.isObj(val)) {
             args[i] = formatObj(val);
-        }else if (util.isUndef(val))
-        {
+        } else if (util.isUndef(val)) {
             args[i] = 'undefined';
-        } else if (util.isNull(val))
-        {
+        } else if (util.isNull(val)) {
             args[i] = 'null';
-        } else
-        {
+        } else {
             val = util.toStr(val);
             if (i !== 0) val = util.escape(val);
             args[i] = val;
         }
     }
-
-    return args.join(' ') + '<div class="eruda-json eruda-hidden"></div>';
+    /*return args.join(' ') + '<div class="eruda-json eruda-hidden"></div>';*/
+    return args.join(' ');
 }
 
-var formatDir = args => formatMsg(args, {htmlForEl: false});
+var formatDir = args => formatMsg(args, { htmlForEl: false });
 
-function substituteStr(args)
-{
+function substituteStr(args) {
     if (!util.isStr(args[0]) || args.length === 1) return args;
 
     var str = util.escape(args[0]),
@@ -303,16 +267,13 @@ function substituteStr(args)
 
     args.shift();
 
-    for (let i = 0, len = str.length; i < len; i++)
-    {
+    for (let i = 0, len = str.length; i < len; i++) {
         let c = str[i];
 
-        if (c === '%' && args.length !== 0)
-        {
+        if (c === '%' && args.length !== 0) {
             i++;
             let arg = args.shift();
-            switch (str[i])
-            {
+            switch (str[i]) {
                 case 'i':
                 case 'd':
                     newStr += util.toInt(arg);
@@ -324,17 +285,14 @@ function substituteStr(args)
                     newStr += util.toStr(arg);
                     break;
                 case 'O':
-                    if (util.isObj(arg))
-                    {
+                    if (util.isObj(arg)) {
                         newStr += getAbstract(arg);
                     }
                     break;
                 case 'o':
-                    if (util.isEl(arg))
-                    {
+                    if (util.isEl(arg)) {
                         newStr += formatEl(arg);
-                    } else if (util.isObj(arg))
-                    {
+                    } else if (util.isObj(arg)) {
                         newStr += getAbstract(arg);
                     }
                     break;
@@ -348,8 +306,7 @@ function substituteStr(args)
                     args.unshift(arg);
                     newStr += c;
             }
-        } else
-        {
+        } else {
             newStr += c;
         }
     }
@@ -360,18 +317,15 @@ function substituteStr(args)
     return args;
 }
 
-function formatObj(val)
-{
+function formatObj(val) {
     return `${util.getObjType(val)} ${getAbstract(val)}`;
 }
 
-function formatFn(val)
-{
+function formatFn(val) {
     return `<pre style="display:inline">${highlight(beautify.js(val.toString()), 'js')}</pre>`;
 }
 
-function formatEl(val)
-{
+function formatEl(val) {
     return `<pre style="display:inline">${highlight(beautify.html(val.outerHTML), 'html')}</pre>`;
 }
 
@@ -379,18 +333,15 @@ var regUrl = /(^|[\s\n]|<[A-Za-z]*\/?>)((?:https?|ftp):\/\/[\-A-Z0-9+\u0026\u201
 
 var recognizeUrl = str => str.replace(regUrl, '<a href="$2" target="_blank">$2</a>');
 
-function getFrom()
-{
+function getFrom() {
     let e = new Error(),
         ret = '',
         lines = e.stack.split('\n');
 
-    for (let i = 0, len = lines.length; i < len; i++)
-    {
+    for (let i = 0, len = lines.length; i < len; i++) {
         ret = lines[i];
-        if (ret.indexOf('winConsole') > -1 && i < len - 1)
-        {
-            ret = lines[i+1];
+        if (ret.indexOf('winConsole') > -1 && i < len - 1) {
+            ret = lines[i + 1];
             break;
         }
     }
@@ -403,8 +354,7 @@ var getCurTime = () => util.dateFormat('HH:MM:ss');
 var tpl = require('./Log.hbs');
 var render = data => tpl(data);
 
-function extractObj(obj, options = {})
-{
+function extractObj(obj, options = {}) {
     util.defaults(options, {
         getterVal: Log.showGetterVal,
         unenumerable: Log.showUnenumerable

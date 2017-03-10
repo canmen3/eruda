@@ -1,8 +1,6 @@
-function boot(name)
-{
+function boot(name) {
     // Need a little delay to make sure width and height of webpack dev server iframe are initialized.
-    setTimeout(function ()
-    {
+    setTimeout(function() {
         eruda.init({
             tool: name === 'settings' ? [] : name
         });
@@ -10,13 +8,10 @@ function boot(name)
 
         if (name == null) return;
 
-        loadJs('lib/boot', function ()
-        {
-            loadJs('lib/jasmine-jquery', function ()
-            {
+        loadJs('lib/boot', function() {
+            loadJs('lib/jasmine-jquery', function() {
                 // This is needed to trigger jasmine initialization.
-                loadJs(name, function ()
-                {
+                loadJs(name, function() {
                     window.onload();
                 });
             });
@@ -24,10 +19,15 @@ function boot(name)
     }, 500);
 }
 
-function loadJs(src, cb)
-{
+function loadJs(src, cb) {
     var script = document.createElement('script');
     script.src = src + '.js';
     script.onload = cb;
     document.body.appendChild(script);
+    var a = {};
+
+    function addname() {
+        a.name = user;
+    }
+    console.log(addname());
 }

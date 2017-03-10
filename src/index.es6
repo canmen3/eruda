@@ -14,8 +14,7 @@ import config from './lib/config.es6'
 import extraUtil from './lib/extraUtil.es6'
 
 module.exports = {
-    init({el, tool} = {})
-    {
+    init({ el, tool } = {}) {
         this._initContainer(el);
         this._initStyle();
         this._initDevTools();
@@ -23,40 +22,42 @@ module.exports = {
         this._initSettings();
         this._initTools(tool);
     },
-    config, util,
-    Console, Elements, Network, Sources, Resources, Info, Snippets, Features,
-    get(name)
-    {
+    config,
+    util,
+    Console,
+    Elements,
+    Network,
+    Sources,
+    Resources,
+    Info,
+    Snippets,
+    Features,
+    get(name) {
         let devTools = this._devTools;
 
         return name ? devTools.get(name) : devTools;
     },
-    add(tool)
-    {
+    add(tool) {
         if (util.isFn(tool)) tool = tool(this);
 
         this._devTools.add(tool);
 
         return this;
     },
-    remove(name)
-    {
+    remove(name) {
         this._devTools.remove(name);
 
         return this;
     },
-    show(name)
-    {
+    show(name) {
         let devTools = this._devTools;
 
         name ? devTools.showTool(name) : devTools.show();
 
         return this;
     },
-    _initContainer(el)
-    {
-        if (!el)
-        {
+    _initContainer(el) {
+        if (!el) {
             el = document.createElement('div');
             document.documentElement.appendChild(el);
         }
@@ -69,12 +70,10 @@ module.exports = {
 
         this._$el = util.$(el);
     },
-    _initDevTools()
-    {
+    _initDevTools() {
         this._devTools = new DevTools(this._$el);
     },
-    _initStyle()
-    {
+    _initStyle() {
         let className = 'eruda-style-container',
             $el = this._$el;
 
@@ -87,35 +86,31 @@ module.exports = {
             require('./style/icon.css')
         );
     },
-    _initEntryBtn()
-    {
+    _initEntryBtn() {
         this._entryBtn = new EntryBtn(this._$el);
         this._entryBtn.on('click', () => this._devTools.toggle());
     },
-    _initSettings()
-    {
+    _initSettings() {
         let devTools = this._devTools,
             settings = new Settings();
 
         devTools.add(settings);
 
         settings.separator()
-                .switch(this._entryBtn.config, 'rememberPos', 'Remember Entry Button Position')
-                .separator()
-                .switch(devTools.config, 'activeEruda', 'Always Activated')
-                .switch(devTools.config, 'tinyNavBar', 'Tiny Navigation Bar')
-                .select(devTools.config, 'transparency', 'Transparency', ['100%', '95%', '90%', '85%', '80%', '75%', '70%'])
-                .select(devTools.config, 'displaySize', 'Display Size', ['100%', '90%', '80%', '70%', '60%', '50%'])
-                .separator();
+            .switch(this._entryBtn.config, 'rememberPos', 'Remember Entry Button Position')
+            .separator()
+            .switch(devTools.config, 'activeEruda', 'Always Activated')
+            .switch(devTools.config, 'tinyNavBar', 'Tiny Navigation Bar')
+            .select(devTools.config, 'transparency', 'Transparency', ['100%', '95%', '90%', '85%', '80%', '75%', '70%'])
+            .select(devTools.config, 'displaySize', 'Display Size', ['100%', '90%', '80%', '70%', '60%', '50%'])
+            .separator();
     },
-    _initTools(tool = ['console', 'elements', 'network', 'resources', 'sources', 'info', 'snippets', 'features'])
-    {
+    _initTools(tool = ['console', 'elements', 'network', 'resources', 'sources', 'info', 'snippets', 'features']) {
         tool = util.toArr(tool).reverse();
 
         let devTools = this._devTools;
 
-        tool.forEach(name =>
-        {
+        tool.forEach(name => {
             let Tool = this[util.upperFirst(name)];
             if (Tool) devTools.add(new Tool());
         });
@@ -125,4 +120,3 @@ module.exports = {
 };
 
 extraUtil(util);
-
