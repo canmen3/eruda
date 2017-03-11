@@ -117,7 +117,11 @@ export default class Log {
 
         if (type !== 'error') msg = recognizeUrl(msg);
         this.value = msg;
-        msg = render({ msg, type, icon, id, displayHeader, time, from });
+        if (type == 'log') {
+            msg = renderString({ msg, type, icon, id, displayHeader, time, from });
+        } else {
+            msg = render({ msg, type, icon, id, displayHeader, time, from });
+        }
 
         delete this.args;
         this.formattedMsg = msg;
@@ -352,7 +356,11 @@ function getFrom() {
 var getCurTime = () => util.dateFormat('HH:MM:ss');
 
 var tpl = require('./Log.hbs');
+var tplstring = require('./LogString.hbs');
 var render = data => tpl(data);
+
+/**将内容转为纯字符串的render */
+var renderString = data => tplstring(data);
 
 function extractObj(obj, options = {}) {
     util.defaults(options, {

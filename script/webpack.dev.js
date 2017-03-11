@@ -4,7 +4,7 @@ var autoprefixer = require('autoprefixer'),
     pkg = require('../package.json'),
     path = require('path');
 
-process.traceDeprecation = true; 
+process.traceDeprecation = true;
 
 var nodeModDir = path.resolve('./node_modules/') + '/',
     banner = pkg.name + ' v' + pkg.version + ' ' + pkg.homepage;
@@ -12,9 +12,9 @@ var nodeModDir = path.resolve('./node_modules/') + '/',
 var postcssLoader = {
     loader: 'postcss-loader',
     options: {
-        plugins:  [classPrefix('eruda-'), autoprefixer]
+        plugins: [classPrefix('eruda-'), autoprefixer]
     }
-};   
+};
 
 module.exports = {
     devtool: false,
@@ -31,8 +31,7 @@ module.exports = {
         libraryTarget: 'umd'
     },
     module: {
-        loaders: [
-            {
+        loaders: [{
                 test: /\.es6$/,
                 loader: 'babel-loader',
                 options: {
